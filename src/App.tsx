@@ -1,26 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import {
+  genericController,
+  PageableResponse,
+  PageData,
+} from './api/generic-api';
+import { People } from './api/schemas/people';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+export const App = () => {
+  const { getAll } = genericController<People>('people');
+  const [people, setPeople] = useState<People[]>();
+  const [page, setPage] = useState<PageData>();
+  useEffect(() => {
+    getAll(1).then((valor) => {
+      setPeople(valor.dados);
+      setPage(valor.page);
+    });
+  }, []);
 
-export default App;
+  if (people) {
+    return (
+      <>
+        <div>
+          Paginação Anterior: {page?.anterior} - Próximo: {page?.proximo}{' '}
+        </div>
+        {people.map((person) => (
+          <div>{person.name}</div>
+        ))}
+      </>
+    );
+  } else {
+    return <div></div>;
+  }
+};
